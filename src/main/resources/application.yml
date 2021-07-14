@@ -1,0 +1,16 @@
+micronaut:
+  application:
+    name: keyManagerGrpc
+
+grpc:
+  server:
+    port: ${SERVER_PORT:50051}
+
+datasources:
+  default:
+    url: ${JDBC_URL:`jdbc:mysql://localhost:3306/kmg`}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    dialect: MYSQL
+jpa.default.properties.hibernate.hbm2ddl.auto: update
