@@ -25,6 +25,7 @@ micronaut {
 }
 
 dependencies {
+
     kapt("io.micronaut.data:micronaut-data-processor")
     implementation("io.micronaut:micronaut-runtime")
     implementation("io.micronaut.grpc:micronaut-grpc-runtime")
@@ -36,9 +37,9 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("io.micronaut:micronaut-validation")
 
+    testImplementation("org.mockito:mockito-junit-jupiter:2.22.0")
 
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
-
 
     implementation("io.micronaut.beanvalidation:micronaut-hibernate-validator")
     implementation("org.hibernate:hibernate-validator:6.1.6.Final")
@@ -48,6 +49,8 @@ dependencies {
     implementation("io.micronaut.sql:micronaut-hibernate-jpa")
     implementation ("mysql:mysql-connector-java:8.0.25")
     implementation("io.micronaut:micronaut-http-client")
+
+    runtime("com.h2database:h2")
 
 }
 

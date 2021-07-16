@@ -8,7 +8,7 @@ import br.com.zup.chavepix.handler.ErrorHandler
 import br.com.zup.chavepix.toModel
 
 import io.grpc.stub.StreamObserver
-import io.micronaut.context.annotation.Bean
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,8 +22,8 @@ class CriaChavePixEndpoint(@Inject private val service: NovaChavePixService) :
         request: ChavePixRequest,
         responseObserver: StreamObserver<ChavePixResponse>
     ) {
-        val novaChave = request.toModel()
 
+        val novaChave = request.toModel()
         val chaveCriada = service.cria(novaChave)
 
         responseObserver.onNext(
@@ -34,4 +34,5 @@ class CriaChavePixEndpoint(@Inject private val service: NovaChavePixService) :
         )
         responseObserver.onCompleted()
     }
+
 }

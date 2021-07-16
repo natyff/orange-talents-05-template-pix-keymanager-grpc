@@ -1,7 +1,6 @@
 package br.com.zup.chavepix
 
 
-import br.com.zup.chavepix.ChavePixRequest
 import br.com.zup.chavepix.dto.NovaChavePix
 import br.com.zup.chavepix.enums.TipoConta
 import br.com.zup.chavepix.enums.TipoDeChave

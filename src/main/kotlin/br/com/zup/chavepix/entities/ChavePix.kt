@@ -14,9 +14,9 @@ import javax.validation.constraints.NotNull
 class ChavePix(
 
     @field:NotNull val clienteId: UUID,
-    @field:NotNull @field:Enumerated(EnumType.STRING) val tipoChave: TipoDeChave,
+    @field:NotNull @field:Enumerated(EnumType.STRING) val tipoDeChave: TipoDeChave,
     @field:NotNull @field:Enumerated(EnumType.STRING) val tipoConta: TipoConta,
-    @field:NotEmpty var chave: String,
+    @field:NotNull var chave: String,
     @field:Valid @Embedded val conta: ContaAssociada
 ) {
     @Id
