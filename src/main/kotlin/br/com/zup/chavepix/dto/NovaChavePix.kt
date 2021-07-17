@@ -27,7 +27,7 @@ data class NovaChavePix(
     fun toModel(conta: ContaAssociada): ChavePix {
         return ChavePix(
             clienteId = UUID.fromString(this.clienteId),
-            tipoDeChave = TipoDeChave.valueOf(this.tipo!!.name),
+            tipoChave = TipoDeChave.valueOf(this.tipo!!.name),
             chave = if (this.tipo == TipoDeChave.ALEATORIA) UUID.randomUUID().toString() else this.chave,
             tipoConta = TipoConta.valueOf(this.tipoConta!!.name),
             conta = conta

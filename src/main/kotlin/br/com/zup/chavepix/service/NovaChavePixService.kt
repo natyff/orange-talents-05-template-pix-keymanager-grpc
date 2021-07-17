@@ -6,7 +6,6 @@ import br.com.zup.chavepix.dto.NovaChavePix
 import br.com.zup.chavepix.handler.ChavePixExistenteException
 import br.com.zup.chavepix.repository.ChavePixRepository
 import io.micronaut.validation.Validated
-import org.slf4j.LoggerFactory
 import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton

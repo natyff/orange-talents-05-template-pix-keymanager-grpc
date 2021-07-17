@@ -137,7 +137,7 @@ class CriaChavePixEndpointTest(
                       valorChave: String): ChavePix {
            return ChavePix(
                clienteId =  CLIENTE_ID,
-               tipoDeChave = TipoDeChave.CPF,
+               tipoChave = TipoDeChave.CPF,
                tipoConta =  TipoConta.CONTA_CORRENTE,
                "",
                ContaAssociada("", "", "", "", "")

@@ -37,3 +37,17 @@ message ChavePixResponse {
   string clienteId = 1;
   string pixId = 2;
 }
+
+//remove chave pix
+service RemoveChavePixGrpcService {
+  rpc remove(RemoveChavePixRequest) returns (RemoveChavePixResponse) {}
+}
+message RemoveChavePixRequest {
+
+  string clienteId = 1;
+  string pixId = 2;
+}
+
+message RemoveChavePixResponse {
+  string clienteId = 1;
+}
