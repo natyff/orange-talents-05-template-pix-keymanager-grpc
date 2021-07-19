@@ -34,13 +34,15 @@ import javax.inject.Singleton
 
 @MicronautTest(
     transactional = false,
-    transactionMode = TransactionMode.SINGLE_TRANSACTION
 )
 
 class CriaChavePixEndpointTest(
     val grpcClient: KeyManagerGrpcServiceGrpc
     .KeyManagerGrpcServiceBlockingStub, val chavePixRepository: ChavePixRepository
 ) {
+
+
+
     @Inject
     lateinit var service: NovaChavePixService
 
@@ -49,15 +51,17 @@ class CriaChavePixEndpointTest(
 
     val CLIENTE_ID: UUID = UUID.randomUUID()
 
-    @BeforeEach
-    internal fun setup(){
-        chavePixRepository.deleteAll()
-    }
 
-    @AfterEach
-    internal fun tearDown(){
-        chavePixRepository.deleteAll()
-    }
+//
+//    @BeforeEach
+//    internal fun setup(){
+//        chavePixRepository.deleteAll()
+//    }
+//
+//    @AfterEach
+//    internal fun tearDown(){
+//        chavePixRepository.deleteAll()
+//    }
 
     @Test
     fun `deve registrar nova chave pix com sucesso`() {
@@ -82,7 +86,7 @@ class CriaChavePixEndpointTest(
     @Test
     fun `nao deve cadastrar pois os dados estao incorretos`() {
 
-        `when`(service.cria(chavePixMock())).thenThrow(IllegalStateException("Cliente não encontrado"))
+        `when`(service.cria(chavePixMock())).thenThrow(IllegalStateException("Os dados do cliente está invalido"))
 
         val request = assertThrows<StatusRuntimeException> {
             grpcClient.criaChavePix(
@@ -95,7 +99,7 @@ class CriaChavePixEndpointTest(
             )
         }
         with(request) {
-            assertEquals(Status.NOT_FOUND.code, status.code)
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
             assertEquals("Os dados do cliente está invalido", status.description)
         }
     }
@@ -103,14 +107,15 @@ class CriaChavePixEndpointTest(
     @Test
     fun `nao deve cadastrar pois os dados já estao cadastrados`() {
 
-        `when`(service.cria(chavePixMock())).thenThrow(ChavePixExistenteException("Chave Pix já existe"))
+        `when`(service.cria(chavePixMock())).thenThrow(ChavePixExistenteException(""))
 
         val dadosDuplicados = dados(
             clienteId = CLIENTE_ID,
             tipoDeChave =  TipoDeChave.CPF,
             tipoConta = TipoConta.CONTA_CORRENTE,
-            valorChave = "02467781054"
+            valorChave = "02467781054",
         )
+        dadosDuplicados.id = UUID.randomUUID()
         chavePixRepository.save(dadosDuplicados)
 
         val thrown = assertThrows<StatusRuntimeException> {
@@ -134,7 +139,8 @@ class CriaChavePixEndpointTest(
     private fun dados(clienteId: UUID,
                       tipoDeChave: TipoDeChave,
                       tipoConta: TipoConta,
-                      valorChave: String): ChavePix {
+                      valorChave: String,
+    ): ChavePix {
            return ChavePix(
                clienteId =  CLIENTE_ID,
                tipoChave = TipoDeChave.CPF,
@@ -142,7 +148,8 @@ class CriaChavePixEndpointTest(
                "",
                ContaAssociada("", "", "", "", "")
            )
-    }
+        chavePixRepository.save(dados(clienteId, tipoDeChave, tipoConta, valorChave))
+    }                                 
 
 
     @MockBean(NovaChavePixService::class)

@@ -33,7 +33,7 @@ class ExceptionHandlerInterceptor (private val solve: ExceptionHandlerSolve) :
     }
 }
 
-private class GrpcEndpointArguments(val context: MethodInvocationContext<BindableService, Any?>) {
+class GrpcEndpointArguments(val context: MethodInvocationContext<BindableService, Any?>) {
     fun response(): StreamObserver<*> {
         return context.parameterValues[1] as StreamObserver<*>
     }

@@ -1,0 +1,16 @@
+{
+  "id": "c2eff114-bcc1-4be9-8f5e-378868a14d26",
+  "importStreams": [
+    {
+      "id": "dcb00a6e-7eda-4c6e-93fc-842310334094",
+      "name": "ChavePix",
+      "importerName": "GrpcServerReflection",
+      "createMissingOperations": true,
+      "options": {
+        "endpoint": "CriaChavePixEndpoint"
+      }
+    }
+  ],
+  "authConfigs": [],
+  "certificates": []
+}
