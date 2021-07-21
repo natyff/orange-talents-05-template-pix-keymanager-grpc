@@ -7,10 +7,10 @@ import io.grpc.protobuf.StatusProto
 
 interface ExceptionHandler <in E: Exception>  {
     // trata exceção e a mapeia para StatusWithDetails
-    fun handle(e: E): StatusWithDetails
+    fun handle(exp: E): StatusWithDetails
 
     // Indica se a implementação do Handler sabe lidar com a exceção
-    fun supports(e: Exception) : Boolean
+    fun supports(exp: Exception) : Boolean
 
     //  Wrapper para Status e Metadata
     data class StatusWithDetails(val status: Status, val metadata: Metadata = Metadata()){

@@ -13,7 +13,7 @@ class ChavePixNaoCadastradaExceptionHandler: ExceptionHandler<ChavePixNaoCadastr
         )
     }
 
-    override fun supports(e: Exception): Boolean {
-        return e is ChavePixNaoCadastradaException
+    override fun supports(exp: Exception): Boolean {
+        return exp is ChavePixNaoCadastradaException
     }
 }

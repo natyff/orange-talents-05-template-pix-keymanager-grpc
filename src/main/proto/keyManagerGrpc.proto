@@ -35,7 +35,7 @@ message ChavePixRequest {
 }
 message ChavePixResponse {
   string clienteId = 1;
-  string pixId = 2;
+  string id = 2;
 }
 
 //remove chave pix
@@ -45,7 +45,7 @@ service RemoveChavePixGrpcService {
 message RemoveChavePixRequest {
 
   string clienteId = 1;
-  string pixId = 2;
+  string id = 2;
 }
 
 message RemoveChavePixResponse {

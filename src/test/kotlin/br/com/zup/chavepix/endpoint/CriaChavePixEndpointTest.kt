@@ -18,11 +18,8 @@ import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
 import io.micronaut.test.annotation.MockBean
-import io.micronaut.test.annotation.TransactionMode
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
@@ -40,8 +37,6 @@ class CriaChavePixEndpointTest(
     val grpcClient: KeyManagerGrpcServiceGrpc
     .KeyManagerGrpcServiceBlockingStub, val chavePixRepository: ChavePixRepository
 ) {
-
-
 
     @Inject
     lateinit var service: NovaChavePixService
@@ -79,7 +74,7 @@ class CriaChavePixEndpointTest(
 
         with(response) {
             assertEquals(CLIENTE_ID.toString(), clienteId)
-            assertNotNull(pixId)
+            assertNotNull(id)
         }
     }
 
@@ -105,9 +100,9 @@ class CriaChavePixEndpointTest(
     }
 
     @Test
-    fun `nao deve cadastrar pois os dados já estao cadastrados`() {
+    fun `nao deve cadastrar pois os dados ja estao cadastrados`() {
 
-        `when`(service.cria(chavePixMock())).thenThrow(ChavePixExistenteException(""))
+        `when`(service.cria(chavePixMock())).thenThrow(ChavePixExistenteException("A chave PIX já existe"))
 
         val dadosDuplicados = dados(
             clienteId = CLIENTE_ID,
@@ -115,7 +110,7 @@ class CriaChavePixEndpointTest(
             tipoConta = TipoConta.CONTA_CORRENTE,
             valorChave = "02467781054",
         )
-        dadosDuplicados.id = UUID.randomUUID()
+
         chavePixRepository.save(dadosDuplicados)
 
         val thrown = assertThrows<StatusRuntimeException> {
@@ -148,7 +143,6 @@ class CriaChavePixEndpointTest(
                "",
                ContaAssociada("", "", "", "", "")
            )
-        chavePixRepository.save(dados(clienteId, tipoDeChave, tipoConta, valorChave))
     }                                 
 
 

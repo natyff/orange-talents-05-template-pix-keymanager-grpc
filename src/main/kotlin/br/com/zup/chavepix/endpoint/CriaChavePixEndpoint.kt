@@ -29,7 +29,7 @@ class CriaChavePixEndpoint(@Inject private val service: NovaChavePixService) :
         responseObserver.onNext(
             ChavePixResponse.newBuilder()
                 .setClienteId(chaveCriada.clienteId.toString())
-                .setPixId(chaveCriada.id.toString())
+                .setId(chaveCriada.id.toString())
                 .build()
         )
         responseObserver.onCompleted()

@@ -20,7 +20,7 @@ class RemoveChavePixService(@Inject val chavePixRepository: ChavePixRepository
     @Transactional
     fun removeChave(@Valid request: RemoveChavePixRequest) {
 
-        val chaveEncontrada: Optional<ChavePix> = chavePixRepository.findByIdAndClienteId(UUID.fromString(request.pixId),
+        val chaveEncontrada: Optional<ChavePix> = chavePixRepository.findByIdAndClienteId(UUID.fromString(request.id),
             UUID.fromString(request.clienteId))
         if (chaveEncontrada.isPresent) {
             chavePixRepository.delete(chaveEncontrada.get())

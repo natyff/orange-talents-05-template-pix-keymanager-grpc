@@ -25,13 +25,15 @@ annotation class ValidaChavesPix(
 class ValidaChavesPixValidator : ConstraintValidator<ValidaChavesPix, NovaChavePix> {
 
     override fun isValid(
-        value: NovaChavePix,
+        value: NovaChavePix?,
         annotationMetadata: AnnotationValue<ValidaChavesPix>,
         context: ConstraintValidatorContext
     ): Boolean {
-        if (value.tipo == null) {
+        if (value?.tipo == null) {
             return false
         }
         return value.tipo.valida(value.chave)
     }
+
+
 }
