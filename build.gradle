@@ -50,7 +50,8 @@ dependencies {
     implementation ("mysql:mysql-connector-java:8.0.25")
     implementation("io.micronaut:micronaut-http-client")
 
-    testImplementation("com.h2database:h2")
+    implementation("io.micronaut.xml:micronaut-jackson-xml")
+
 
     /**
      * Test dependencies
@@ -61,6 +62,7 @@ dependencies {
     testImplementation("com.h2database:h2")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
     testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("com.h2database:h2")
 
 }
 

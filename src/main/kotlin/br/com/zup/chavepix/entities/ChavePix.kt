@@ -21,5 +21,19 @@ class ChavePix(
 ) {
     @Id
     @GeneratedValue
-    @Type(type="uuid-char") lateinit var id: UUID
+    @Type(type = "uuid-char")
+    lateinit var id: UUID
+
+
+    fun isAleatoria(): Boolean {
+        return tipoChave == TipoDeChave.ALEATORIA
+    }
+
+    fun atualiza(chave: String): Boolean {
+        if (isAleatoria()) {
+            this.chave = chave
+            return true
+        }
+        return false
+    }
 }
