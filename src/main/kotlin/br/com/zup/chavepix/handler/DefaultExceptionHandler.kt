@@ -1,6 +1,6 @@
 package br.com.zup.chavepix.handler
 
-import com.mysql.cj.exceptions.AssertionFailedException
+
 import io.grpc.Status
 import java.lang.AssertionError
 

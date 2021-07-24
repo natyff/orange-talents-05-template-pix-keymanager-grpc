@@ -2,6 +2,10 @@ package br.com.zup.chavepix.endpoint
 
 import br.com.zup.chavepix.ChavePixRequest
 import br.com.zup.chavepix.KeyManagerGrpcServiceGrpc
+import br.com.zup.chavepix.chavepix.DadosDaContaResponse
+import br.com.zup.chavepix.chavepix.InstituicaoResponse
+import br.com.zup.chavepix.chavepix.TitularResponse
+import br.com.zup.chavepix.client.BcbClient
 import br.com.zup.chavepix.client.ContasItauClient
 import br.com.zup.chavepix.dto.NovaChavePix
 import br.com.zup.chavepix.entities.ChavePix
@@ -17,14 +21,17 @@ import io.grpc.StatusRuntimeException
 import io.micronaut.context.annotation.Factory
 import io.micronaut.grpc.annotation.GrpcChannel
 import io.micronaut.grpc.server.GrpcServerChannel
+import io.micronaut.http.HttpResponse
 import io.micronaut.test.annotation.MockBean
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest
 import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
 import java.lang.IllegalStateException
+import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,21 +45,23 @@ class CriaChavePixEndpointTest(
     .KeyManagerGrpcServiceBlockingStub, val chavePixRepository: ChavePixRepository
 ) {
 
-    @Inject
-    lateinit var service: NovaChavePixService
 
     @Inject
     lateinit var itauClient: ContasItauClient
 
-    val CLIENTE_ID: UUID = UUID.randomUUID()
+    @Inject
+    lateinit var bcbClient: BcbClient
+
+    companion object {
+        val CLIENTE_ID: UUID = UUID.randomUUID()
+    }
 
 
-//
-//    @BeforeEach
-//    internal fun setup(){
-//        chavePixRepository.deleteAll()
-//    }
-//
+    @BeforeEach
+    fun setup(){
+        chavePixRepository.deleteAll()
+    }
+
 //    @AfterEach
 //    internal fun tearDown(){
 //        chavePixRepository.deleteAll()
@@ -60,8 +69,10 @@ class CriaChavePixEndpointTest(
 
     @Test
     fun `deve registrar nova chave pix com sucesso`() {
+        `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipo = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(chavePixResponseMock()))
 
-        `when`(service!!.cria(chavePixMock())).`thenReturn`(chavePixResponseMock())
+        `when`(bcbClient.create(chavePixRequest())).thenReturn(HttpResponse.created(chavePixResponse()))
 
         val response = grpcClient.criaChavePix(
             ChavePixRequest.newBuilder()
@@ -72,16 +83,16 @@ class CriaChavePixEndpointTest(
                 .build()
         )
 
+
         with(response) {
             assertEquals(CLIENTE_ID.toString(), clienteId)
             assertNotNull(id)
         }
     }
 
+
     @Test
     fun `nao deve cadastrar pois os dados estao incorretos`() {
-
-        `when`(service.cria(chavePixMock())).thenThrow(IllegalStateException("Os dados do cliente está invalido"))
 
         val request = assertThrows<StatusRuntimeException> {
             grpcClient.criaChavePix(
@@ -89,12 +100,12 @@ class CriaChavePixEndpointTest(
                     .setClienteId(CLIENTE_ID.toString())
                     .setTipoDeChave(ChavePixRequest.TipoDeChave.CPF)
                     .setTipoConta(ChavePixRequest.TipoConta.CONTA_CORRENTE)
-                    .setValorChave("02467781054")
+                    .setValorChave("02467781054_")
                     .build()
             )
         }
         with(request) {
-            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals(Status.INVALID_ARGUMENT.code, status.code)
             assertEquals("Os dados do cliente está invalido", status.description)
         }
     }
@@ -102,16 +113,11 @@ class CriaChavePixEndpointTest(
     @Test
     fun `nao deve cadastrar pois os dados ja estao cadastrados`() {
 
-        `when`(service.cria(chavePixMock())).thenThrow(ChavePixExistenteException("A chave PIX já existe"))
-
-        val dadosDuplicados = dados(
-            clienteId = CLIENTE_ID,
-            tipoDeChave =  TipoDeChave.CPF,
-            tipoConta = TipoConta.CONTA_CORRENTE,
-            valorChave = "02467781054",
-        )
-
-        chavePixRepository.save(dadosDuplicados)
+        chavePixRepository.save(chaveDuplicada(
+            tipoChave =TipoDeChave.CPF,
+            chave ="02467781054",
+            clienteId = CLIENTE_ID
+        ))
 
         val thrown = assertThrows<StatusRuntimeException> {
             grpcClient.criaChavePix(
@@ -131,6 +137,30 @@ class CriaChavePixEndpointTest(
 
     }
 
+    @Test
+    fun `nao deve registar se nao for registrado no BCB`(){
+        `when`(itauClient.buscaContaPorTipo(clienteId = CLIENTE_ID.toString(), tipo = "CONTA_CORRENTE"))
+            .thenReturn(HttpResponse.ok(chavePixResponseMock()))
+
+        `when`(bcbClient.create(chavePixRequest()))
+            .thenReturn(HttpResponse.badRequest())
+
+        val thrown = assertThrows<StatusRuntimeException> {
+            grpcClient.criaChavePix(ChavePixRequest.newBuilder()
+                .setClienteId(CLIENTE_ID.toString())
+                .setTipoDeChave(ChavePixRequest.TipoDeChave.CPF)
+                .setTipoConta(ChavePixRequest.TipoConta.CONTA_CORRENTE)
+                .setValorChave("02467781054")
+                .build())
+        }
+
+        with(thrown){
+            assertEquals(Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("Erro ao registrar a chave PIX no Bacen", status.description)
+        }
+    }
+
+
     private fun dados(clienteId: UUID,
                       tipoDeChave: TipoDeChave,
                       tipoConta: TipoConta,
@@ -143,17 +173,52 @@ class CriaChavePixEndpointTest(
                "",
                ContaAssociada("", "", "", "", "")
            )
-    }                                 
-
-
-    @MockBean(NovaChavePixService::class)
-    fun service(): NovaChavePixService? {
-        return Mockito.mock(NovaChavePixService::class.java)
     }
+
+    private fun chavePixRequest(): BcbClient.CriaChavePixRequest {
+        return BcbClient.CriaChavePixRequest(
+            keyType = BcbClient.PixKeyType.CPF,
+            key = "02467781054",
+            bankAccount = bankAccount(),
+            owner = owner()
+        )
+    }
+
+    private fun chavePixResponse(): BcbClient.CriaChavePixResponse {
+        return BcbClient.CriaChavePixResponse(
+            keyType = BcbClient.PixKeyType.CPF,
+            key = "02467781054",
+            bankAccount = bankAccount(),
+            createdAt = LocalDateTime.now(),
+            owner = owner()
+        )
+    }
+    private fun bankAccount(): BcbClient.BankAccount {
+        return BcbClient.BankAccount(
+            participant = ContaAssociada.ITAU_UNIBANCO_ISPB,
+            accountNumber = "",
+            accountType = BcbClient.BankAccount.AccountType.CACC,
+            branch = ""
+        )
+    }
+
+    private fun owner(): BcbClient.Owner {
+        return BcbClient.Owner(
+            type = BcbClient.Owner.OwnerType.NATURAL_PERSON,
+            name = "",
+            taxIdNumber = "02467781054"
+        )
+    }
+
 
     @MockBean(ContasItauClient::class)
     fun mockItau(): ContasItauClient? {
         return Mockito.mock(ContasItauClient::class.java)
+    }
+
+    @MockBean(BcbClient::class)
+    fun mockBcb(): BcbClient? {
+        return Mockito.mock(BcbClient::class.java)
     }
 
     @Factory
@@ -166,26 +231,36 @@ class CriaChavePixEndpointTest(
     }
 
 
-    private fun chavePixMock(): NovaChavePix {
-        val conta = NovaChavePix(
-            CLIENTE_ID.toString(),
-            TipoDeChave.CPF,
-            "02467781054",
-            TipoConta.CONTA_CORRENTE
+
+    private fun chavePixResponseMock(): DadosDaContaResponse {
+        return DadosDaContaResponse(
+            agencia = "0001",
+            instituicao = InstituicaoResponse("ITAÚ UNIBANCO S.A.", "60701190"),
+            numero = "291900",
+            tipo = "CONTA_CORRENTE",
+            titular = TitularResponse("Rafael M C Ponte","02467781054")
         )
-        return conta
     }
 
-    private fun chavePixResponseMock(): ChavePix {
-        val mockKey = ChavePix(
-            CLIENTE_ID,
-            TipoDeChave.CPF,
-            TipoConta.CONTA_CORRENTE,
-            "",
-            ContaAssociada("", "", "", "", "")
+
+    private fun chaveDuplicada(
+        tipoChave: TipoDeChave,
+        chave: String = UUID.randomUUID().toString(),
+        clienteId: UUID = UUID.randomUUID(),
+    ): ChavePix {
+        return ChavePix(
+            clienteId = clienteId,
+            tipoChave = tipoChave,
+            chave = chave,
+            tipoConta = TipoConta.CONTA_CORRENTE,
+            conta = ContaAssociada(
+                instituicao = "ITAÚ UNIBANCO S.A.",
+                nomeTitular = "Rafael Ponte",
+                cpf = "02467781054",
+                agencia = "1218",
+                numeroConta = "291900"
+            )
         )
-        mockKey.id = CLIENTE_ID
-        return mockKey
     }
 }
 

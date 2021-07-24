@@ -22,7 +22,7 @@ class ExceptionHandlerInterceptor (private val solve: ExceptionHandlerSolve) :
             context.proceed()
         } catch (ex: Exception) {
             logger.error("Handling the exception '${ex.javaClass.name}' while processing the call: ${context.targetMethod}", ex)
-
+        ex.printStackTrace()
             val handler = solve.resolve(ex) as ExceptionHandler<Exception>
             val status = handler.handle(ex)
 

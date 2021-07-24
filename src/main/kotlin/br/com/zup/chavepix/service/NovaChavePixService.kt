@@ -44,6 +44,7 @@ class NovaChavePixService(
             LOGGER.info("Registrando chave PIX no Bacen: $it")
         }
 
+
         val bcbResponse = bcbClient.create(bcbRequest)
         if(bcbResponse.status != HttpStatus.CREATED)
             throw IllegalStateException("Erro ao registrar a chave PIX no Bacen")

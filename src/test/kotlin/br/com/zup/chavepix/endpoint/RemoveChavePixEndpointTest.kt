@@ -5,6 +5,7 @@ import br.com.zup.chavepix.ChavePixRequest
 import br.com.zup.chavepix.RemoveChavePixGrpcServiceGrpc
 import br.com.zup.chavepix.RemoveChavePixRequest
 import br.com.zup.chavepix.RemoveChavePixResponse
+import br.com.zup.chavepix.client.BcbClient
 import br.com.zup.chavepix.client.ContasItauClient
 import br.com.zup.chavepix.entities.ChavePix
 import br.com.zup.chavepix.entities.ContaAssociada
@@ -39,6 +40,9 @@ internal class RemoveChavePixEndpointTest(
     val chavePixRepository: ChavePixRepository
 ) {
 
+    @Inject
+    lateinit var bcbClient: BcbClient
+
     var CLIENTE_ID = UUID.randomUUID()
     val mock = chavePixResponseMock()
 
@@ -52,8 +56,6 @@ internal class RemoveChavePixEndpointTest(
         chavePixRepository.deleteAll()
     }
 
-    @Inject
-    lateinit var itauClient: ContasItauClient
 
     @Test
     fun `deve excluir chave com sucesso`() {
@@ -100,7 +102,26 @@ internal class RemoveChavePixEndpointTest(
 
         with(thrown) {
             assertEquals(Status.INVALID_ARGUMENT.code, status.code)
-            assertEquals("DadosInvalidos", status.description)
+            assertEquals("Dados Invalidos", status.description)
+        }
+    }
+
+    @Test
+    fun `nao deve excluir chave pix existente quando ocorrer algum erro no serviço do BCB`() {
+        `when`(bcbClient.delete("02467781054", BcbClient.DeleteChavePixRequest("02467781054")))
+            .thenReturn(HttpResponse.unprocessableEntity())
+
+        val thrown = assertThrows<StatusRuntimeException> {
+            grpcClient.remove(RemoveChavePixRequest.newBuilder()
+                .setClienteId(mock.clienteId.toString())
+                .setId(mock.id.toString())
+                .build())
+        }
+
+
+        with(thrown) {
+            assertEquals(io.grpc.Status.FAILED_PRECONDITION.code, status.code)
+            assertEquals("Erro ao remover chave Pix no Banco Central do Brasil (BCB)", status.description)
         }
     }
 
@@ -127,5 +148,25 @@ internal class RemoveChavePixEndpointTest(
             ContaAssociada("", "", "", "", "")
         )
         return mockKey
+    }
+
+    private fun chaveMock(
+        tipoChave: TipoDeChave,
+        chave: String = UUID.randomUUID().toString(),
+        clienteId: UUID = UUID.randomUUID(),
+    ): ChavePix {
+        return ChavePix(
+            clienteId = clienteId,
+            tipoChave = tipoChave,
+            chave = chave,
+            tipoConta = TipoConta.CONTA_CORRENTE,
+            conta = ContaAssociada(
+                instituicao = "ITAÚ UNIBANCO S.A.",
+                nomeTitular = "Rafael Ponte",
+                cpf = "02467781054",
+                agencia = "1218",
+                numeroConta = "291900"
+            )
+        )
     }
 }

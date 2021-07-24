@@ -20,6 +20,7 @@ class ErrorHandlerInterceptor : MethodInterceptor<ChavePixRequest, Any> {
             return context.proceed()
         } catch (ex: Exception) {
             val responseObserver = context.parameterValues[1] as StreamObserver<*>
+            ex.printStackTrace()
 
             val status = when (ex) {
                 is ConstraintViolationException -> Status.INVALID_ARGUMENT
