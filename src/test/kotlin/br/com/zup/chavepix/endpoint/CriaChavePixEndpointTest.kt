@@ -7,14 +7,11 @@ import br.com.zup.chavepix.chavepix.InstituicaoResponse
 import br.com.zup.chavepix.chavepix.TitularResponse
 import br.com.zup.chavepix.client.BcbClient
 import br.com.zup.chavepix.client.ContasItauClient
-import br.com.zup.chavepix.dto.NovaChavePix
 import br.com.zup.chavepix.entities.ChavePix
 import br.com.zup.chavepix.entities.ContaAssociada
 import br.com.zup.chavepix.enums.TipoConta
 import br.com.zup.chavepix.enums.TipoDeChave
-import br.com.zup.chavepix.handler.ChavePixExistenteException
 import br.com.zup.chavepix.repository.ChavePixRepository
-import br.com.zup.chavepix.service.NovaChavePixService
 import io.grpc.ManagedChannel
 import io.grpc.Status
 import io.grpc.StatusRuntimeException
@@ -30,7 +27,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
-import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import java.util.*
 import javax.inject.Inject
@@ -77,8 +73,8 @@ class CriaChavePixEndpointTest(
         val response = grpcClient.criaChavePix(
             ChavePixRequest.newBuilder()
                 .setClienteId(CLIENTE_ID.toString())
-                .setTipoDeChave(ChavePixRequest.TipoDeChave.CPF)
-                .setTipoConta(ChavePixRequest.TipoConta.CONTA_CORRENTE)
+                .setTipoDeChave(br.com.zup.chavepix.TipoDeChave.CPF)
+                .setTipoConta(br.com.zup.chavepix.TipoConta.CONTA_CORRENTE)
                 .setValorChave("02467781054")
                 .build()
         )
@@ -98,8 +94,8 @@ class CriaChavePixEndpointTest(
             grpcClient.criaChavePix(
                 ChavePixRequest.newBuilder()
                     .setClienteId(CLIENTE_ID.toString())
-                    .setTipoDeChave(ChavePixRequest.TipoDeChave.CPF)
-                    .setTipoConta(ChavePixRequest.TipoConta.CONTA_CORRENTE)
+                    .setTipoDeChave(br.com.zup.chavepix.TipoDeChave.CPF)
+                    .setTipoConta(br.com.zup.chavepix.TipoConta.CONTA_CORRENTE)
                     .setValorChave("02467781054_")
                     .build()
             )
@@ -123,8 +119,8 @@ class CriaChavePixEndpointTest(
             grpcClient.criaChavePix(
                 ChavePixRequest.newBuilder()
                     .setClienteId(CLIENTE_ID.toString())
-                    .setTipoDeChave(ChavePixRequest.TipoDeChave.CPF)
-                    .setTipoConta(ChavePixRequest.TipoConta.CONTA_CORRENTE)
+                    .setTipoDeChave(br.com.zup.chavepix.TipoDeChave.CPF)
+                    .setTipoConta(br.com.zup.chavepix.TipoConta.CONTA_CORRENTE)
                     .setValorChave("02467781054")
                     .build()
             )
@@ -148,8 +144,8 @@ class CriaChavePixEndpointTest(
         val thrown = assertThrows<StatusRuntimeException> {
             grpcClient.criaChavePix(ChavePixRequest.newBuilder()
                 .setClienteId(CLIENTE_ID.toString())
-                .setTipoDeChave(ChavePixRequest.TipoDeChave.CPF)
-                .setTipoConta(ChavePixRequest.TipoConta.CONTA_CORRENTE)
+                .setTipoDeChave(br.com.zup.chavepix.TipoDeChave.CPF)
+                .setTipoConta(br.com.zup.chavepix.TipoConta.CONTA_CORRENTE)
                 .setValorChave("02467781054")
                 .build())
         }

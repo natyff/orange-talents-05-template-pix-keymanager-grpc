@@ -29,7 +29,7 @@ sealed class ValidaFiltro {
                 return chavePixRepository.findById(UUID.fromString(pixId))
                     .filter { it.pertenceAo(UUID.fromString(clientId))}
                     .map(ChavePixDetalhe::of)
-                    .orElseThrow {ChavePixNaoCadastradaException("Chave pix não encontrada")}
+                    .orElseThrow {ChavePixNaoCadastradaException("Chave Pix não encontrada")}
             }
         }
 

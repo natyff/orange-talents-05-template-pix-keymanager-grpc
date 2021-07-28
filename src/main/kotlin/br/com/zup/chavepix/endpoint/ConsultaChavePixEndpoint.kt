@@ -9,13 +9,13 @@ import br.com.zup.chavepix.dto.ConsultaChavePixConverter
 import br.com.zup.chavepix.dto.ValidaFiltro
 import br.com.zup.chavepix.handler.ErrorHandler
 import br.com.zup.chavepix.repository.ChavePixRepository
-import br.com.zup.chavepix.service.ConsultaChavePixService
+
 import io.grpc.stub.StreamObserver
 import javax.validation.Validator
 import javax.inject.Inject
 import javax.inject.Singleton
-import javax.validation.ConstraintViolation
 import javax.validation.ConstraintViolationException
+
 
 @Singleton
 @ErrorHandler
