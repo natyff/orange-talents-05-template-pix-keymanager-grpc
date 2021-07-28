@@ -11,4 +11,6 @@ interface ChavePixRepository: CrudRepository<ChavePix, UUID> {
 
     fun findByIdAndClienteId(id: UUID, clienteId: UUID): Optional<ChavePix>
 
+    fun findByChave(chave: String): Optional<ChavePix>
+
 }

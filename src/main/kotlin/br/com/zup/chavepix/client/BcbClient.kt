@@ -1,5 +1,6 @@
 package br.com.zup.chavepix.client
 
+import br.com.zup.chavepix.dto.ChavePixDetalhe
 import br.com.zup.chavepix.entities.ChavePix
 import br.com.zup.chavepix.entities.ContaAssociada
 import br.com.zup.chavepix.enums.TipoConta
@@ -24,6 +25,39 @@ interface BcbClient {
         consumes = [MediaType.APPLICATION_XML]
     )
     fun delete(@PathVariable chave: String, @Body request: DeleteChavePixRequest): HttpResponse<DeleteChavePixResponse>
+
+    @Get("/api/v1/pix/keys/{key}",
+    consumes = [MediaType.APPLICATION_XML]
+    )
+    fun findByChave(@PathVariable key: String): HttpResponse<DetalhePixResponse>
+
+data class DetalhePixResponse(
+    val keyType: PixKeyType,
+    val key: String,
+    val bankAccount: BankAccount,
+    val owner: Owner,
+    val createdAt: LocalDateTime
+) {
+    fun converter(): ChavePixDetalhe {
+        return ChavePixDetalhe(
+            chave = key,
+            tipoChave = keyType.domainType!!,
+            tipoConta = when(this.bankAccount.accountType){
+                BankAccount.AccountType.CACC -> TipoConta.CONTA_CORRENTE
+                BankAccount.AccountType.SVGS -> TipoConta.CONTA_POUPANCA
+            },
+            conta = ContaAssociada(
+                instituicao = bankAccount.participant,
+                nomeTitular = owner.name,
+                cpf = owner.taxIdNumber,
+                agencia = bankAccount.branch,
+                numeroConta = bankAccount.accountNumber
+            ),
+            criadoEm = createdAt
+        )
+    }
+}
+
 
 
 data class CriaChavePixRequest(

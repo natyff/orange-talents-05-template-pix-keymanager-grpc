@@ -10,12 +10,12 @@ fun ChavePixRequest.toModel(): NovaChavePix {
     return NovaChavePix(
         clienteId = clienteId,
         tipo = when (tipoDeChave) {
-            ChavePixRequest.TipoDeChave.DESCONHECIDO -> null
+            br.com.zup.chavepix.TipoDeChave.DESCONHECIDO -> null
             else -> TipoDeChave.valueOf(tipoDeChave.name)
         },
         chave = valorChave,
         tipoConta = when (tipoConta) {
-            ChavePixRequest.TipoConta.CONTA_DESCONHECIDO -> null
+            br.com.zup.chavepix.TipoConta.CONTA_DESCONHECIDO -> null
             else -> TipoConta.valueOf(tipoConta.name)
         }
     )

@@ -4,6 +4,7 @@ package br.com.zup.chavepix.entities
 import br.com.zup.chavepix.enums.TipoConta
 import br.com.zup.chavepix.enums.TipoDeChave
 import org.hibernate.annotations.Type
+import java.time.LocalDateTime
 import java.util.*
 import javax.persistence.*
 
@@ -36,4 +37,6 @@ class ChavePix(
         }
         return false
     }
+
+    fun pertenceAo(clienteId: UUID) = this.clienteId.equals(clienteId)
 }
