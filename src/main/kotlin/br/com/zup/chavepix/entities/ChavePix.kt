@@ -25,6 +25,7 @@ class ChavePix(
     @Type(type = "uuid-char")
     lateinit var id: UUID
 
+    var registradaEm = LocalDateTime.now()
 
     fun isAleatoria(): Boolean {
         return tipoChave == TipoDeChave.ALEATORIA

@@ -93,6 +93,29 @@ message ConsultaChavePixResponse {
 }
 
 
+//Lista todas chaves pix
+
+service ListaChavePixGrpcService{
+  rpc lista(ListaChavePixRequest) returns(ListaChavePixResponse){}
+}
+
+message ListaChavePixRequest {
+  string clienteId = 1;
+}
+
+message ListaChavePixResponse{
+  message ChavePix{
+    string pixId = 1;
+    TipoDeChave tipoDeChave = 2;
+    string valorChave = 3;
+    TipoConta tipoConta = 4;
+    google.protobuf.Timestamp registradaEm = 5;
+  }
+  string clienteId = 1;
+  repeated ChavePix chaves = 2;
+}
+
+
 
 enum TipoDeChave{
   DESCONHECIDO = 0;
